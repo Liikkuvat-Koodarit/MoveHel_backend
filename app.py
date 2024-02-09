@@ -12,8 +12,8 @@ class Review(db.Model):
     id_place = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(100), nullable=False)
-    id_user = db.Column(db.Integer, db.ForeignKey('user.id_user'))  # Define foreign key
-    user = db.relationship('User', backref='reviews')  # Define relationship
+    id_user = db.Column(db.Integer, db.ForeignKey('user.id_user'))
+    user = db.relationship('User', backref='reviews')
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
@@ -25,6 +25,7 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(200), nullable=False)
 
+# Testifunktio GET-pyyntöjä varten
 @app.route('/')
 def hello():
     return 'Hey!'
