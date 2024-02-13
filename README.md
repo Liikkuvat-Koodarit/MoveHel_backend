@@ -21,6 +21,6 @@
 # In pgAdmin
 1. Right click: **Databases -> Create -> Database**
 2. Name the database: **movehel -> Save** (NOTE! name of the database should be the same as the one in "dburi.py".
-db_uri = 'postgresql://postgres:OMA-SALASANA@localhost/**movehel**')
+db_uri = 'postgresql://postgres:YOUR_PASSWORD@localhost/**movehel**')
 - Database tables can be found like so: **Databases -> movehel -> Schemas -> Tables**
 - Information can be refreshed by right clicking on a field and clicking **Refresh**
