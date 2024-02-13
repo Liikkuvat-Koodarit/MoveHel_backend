@@ -1,5 +1,5 @@
 from dburi import db_uri
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from datetime import datetime
@@ -49,18 +49,22 @@ def create_review():
 # Kaikkien arvostelujen haku
 @app.route("/review", methods = ["GET"])
 def get_reviews():
-    reviews = Review.query.order_by(Review.created_at.asc()).all()
-    review_list = []
-    for r in reviews:
-        review_list.append(format_review(r))
-    return {"reviews": review_list}
+    try:
+        reviews = Review.query.order_by(Review.created_at.asc()).all()
+        review_list = [format_review(r) for r in reviews]
+        return {"reviews": review_list}
+    except exc.SQLAlchemyError as e:
+        return jsonify({"error": f"Error fetching reviews: {str(e)}"}), 500
 
 # Yksittäisen arvostelun haku
 @app.route("/review/<int:id>", methods=["GET"])
 def get_review(id):
-    review = Review.query.filter_by(id_review = id).one()
-    formatted_review = format_review(review)
-    return {"review": formatted_review}
+    try:
+        review = Review.query.filter_by(id_review=id).one()
+        formatted_review = format_review(review)
+        return {"review": formatted_review}
+    except exc.NoResultFound as e:
+        return jsonify({"error": f"Review with id {id} not found: {str(e)}"}), 404
 
 # Yksittäisen arvostelun poisto
 @app.route("/review/<int:id>", methods=["DELETE"])
