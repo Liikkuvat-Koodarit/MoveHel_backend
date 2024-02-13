@@ -2,6 +2,7 @@ from dburi import db_uri
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import logging
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
@@ -31,12 +32,6 @@ def format_review(review):
         "created_at": review.created_at
     }
 
-
-# Testifunktio GET-pyyntöjä varten
-@app.route('/')
-def hello():
-    return 'Hey!'
-
 # Arvostelun luonti
 @app.route('/review', methods = ['POST'])
 def create_review():
@@ -55,6 +50,45 @@ def create_review():
 @app.route("/review", methods = ["GET"])
 def get_reviews():
     reviews = Review.query.order_by(Review.created_at.asc()).all()
+    review_list = []
+    for r in reviews:
+        review_list.append(format_review(r))
+    return {"reviews": review_list}
+
+# Yksittäisen arvostelun haku
+@app.route("/review/<int:id>", methods=["GET"])
+def get_review(id):
+    review = Review.query.filter_by(id_review = id).one()
+    formatted_review = format_review(review)
+    return {"review": formatted_review}
+
+# Yksittäisen arvostelun poisto
+@app.route("/review/<int:id>", methods=["DELETE"])
+def delete_review(id):
+    review = Review.query.filter_by(id_review = id).one()
+    db.session.delete(review)
+    db.session.commit()
+    return f"Event (id: {id}) deleted!"
+
+# Yksittäisen arvostelun muokkaus
+@app.route("/review/<int:id>", methods=["PUT"])
+def update_review(id):
+    try:
+        review = Review.query.filter_by(id_review=id).first()
+        if review:
+            reviewText = request.json.get("reviewText")  # Use .get() to avoid KeyError if 'reviewText' is missing
+            if reviewText is not None:
+                review.reviewText = reviewText
+                review.created_at = datetime.utcnow()  # Update the created_at timestamp
+                db.session.commit()
+                return {"review": format_review(review)}
+            else:
+                return {"error": "Missing 'reviewText' in request body"}, 400
+        else:
+            return {"error": "Review not found"}, 404
+    except Exception as e:
+        logging.error(f"Error updating review with id {id}: {str(e)}")
+        return {"error": "Internal server error"}, 500
 
 if __name__ == '__main__':
     app.run()
