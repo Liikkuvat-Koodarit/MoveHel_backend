@@ -1,8 +1,8 @@
 from dburi import db_uri
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 from datetime import datetime
-import logging
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
@@ -65,10 +65,19 @@ def get_review(id):
 # Yksittäisen arvostelun poisto
 @app.route("/review/<int:id>", methods=["DELETE"])
 def delete_review(id):
-    review = Review.query.filter_by(id_review = id).one()
-    db.session.delete(review)
-    db.session.commit()
-    return f"Event (id: {id}) deleted!"
+    try:
+        review = Review.query.get(id)
+        if review:
+            db.session.delete(review)
+            db.session.commit()
+            return f"Review (id: {id}) deleted!"
+        else:
+            return f"Review with id {id} not found", 404
+    except exc.SQLAlchemyError as e:
+        db.session.rollback()
+        return f"Error deleting review: {str(e)}", 500
+    finally:
+        db.session.close()
 
 # Yksittäisen arvostelun muokkaus
 @app.route("/review/<int:id>", methods=["PUT"])
@@ -86,9 +95,10 @@ def update_review(id):
                 return {"error": "Missing 'reviewText' in request body"}, 400
         else:
             return {"error": "Review not found"}, 404
-    except Exception as e:
-        logging.error(f"Error updating review with id {id}: {str(e)}")
-        return {"error": "Internal server error"}, 500
+    except exc.SQLAlchemyError as e:
+        return f"Error updating review with id {id}: {str(e)}", 500
+    finally:
+        db.session.close()
 
 if __name__ == '__main__':
     app.run()
