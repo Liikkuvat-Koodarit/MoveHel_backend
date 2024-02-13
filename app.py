@@ -37,6 +37,7 @@ def format_review(review):
 def hello():
     return 'Hey!'
 
+# Arvostelun luonti
 @app.route('/review', methods = ['POST'])
 def create_review():
     id_sportsPlace = request.json['id_sportsPlace']
@@ -49,6 +50,11 @@ def create_review():
     db.session.commit()
     
     return format_review(review)
+
+# Kaikkien arvostelujen haku
+@app.route("/review", methods = ["GET"])
+def get_reviews():
+    reviews = Review.query.order_by(Review.created_at.asc()).all()
 
 if __name__ == '__main__':
     app.run()
