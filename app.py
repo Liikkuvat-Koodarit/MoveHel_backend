@@ -9,37 +9,40 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 db = SQLAlchemy(app)
 
 class Review(db.Model):
-    id_review = db.Column(db.Integer, primary_key=True)
-    id_sportsPlace = db.Column(db.Integer, nullable=False)
+    __tablename__ = 'review'
+    reviewId = db.Column(db.Integer, primary_key=True, autoincrement = True)
+    sportsPlaceId = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
-    reviewText = db.Column(db.String(100), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
+    reviewText = db.Column(db.Text, nullable=False)
+    createdAt = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
     def __repr__(self):
         return f"Review: {self.reviewText}"
     
-    def __init__(self, id_sportsPlace, rating, reviewText):
-        self.id_sportsPlace = id_sportsPlace
+    def __init__(self, sportsPlaceId, rating, reviewText):
+        self.sportsPlaceId = sportsPlaceId
         self.rating = rating
         self.reviewText = reviewText
-
+        self.sportsPlaceId = sportsPlaceId
+        
+    
 def format_review(review):
     return {
-        "id_review": review.id_review,
-        "id_sportsPlace": review.id_sportsPlace,
+        "reviewId": review.reviewId,
+        "sportsPlaceId": review.sportsPlaceId,
         "rating": review.rating,
         "reviewText": review.reviewText,
-        "created_at": review.created_at
+        "createdAt": review.createdAt
     }
 
 # Arvostelun luonti
 @app.route('/review', methods = ['POST'])
 def create_review():
-    id_sportsPlace = request.json['id_sportsPlace']
+    sportsPlaceId = request.json['sportsPlaceId']
     rating = request.json['rating']
     reviewText = request.json['reviewText']
 
-    review = Review(id_sportsPlace, rating, reviewText)
+    review = Review(sportsPlaceId, rating, reviewText)
     
     db.session.add(review)
     db.session.commit()
@@ -87,12 +90,12 @@ def delete_review(id):
 @app.route("/review/<int:id>", methods=["PUT"])
 def update_review(id):
     try:
-        review = Review.query.filter_by(id_review=id).first()
+        review = Review.query.filter_by(reviewId=id).first()
         if review:
             reviewText = request.json.get("reviewText")  # Use .get() to avoid KeyError if 'reviewText' is missing
             if reviewText is not None:
                 review.reviewText = reviewText
-                review.created_at = datetime.utcnow()  # Update the created_at timestamp
+                review.createdAt = datetime.utcnow()  # Update the createdat timestamp
                 db.session.commit()
                 return {"review": format_review(review)}
             else:
