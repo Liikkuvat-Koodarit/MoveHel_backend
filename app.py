@@ -1,53 +1,64 @@
 from dburi import db_uri
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS # Cross-Origin Resource Sharing
 from sqlalchemy import exc
+from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 db = SQLAlchemy(app)
+# CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5173", "http://localhost:5000", "http://localhost:3000"]}})
+CORS(app)
 
 class Review(db.Model):
     __tablename__ = 'review'
-    reviewId = db.Column(db.Integer, primary_key=True, autoincrement = True)
-    sportsPlaceId = db.Column(db.Integer, nullable=False)
+    id_review = db.Column(db.Integer, primary_key=True, autoincrement = True)
+    id_sportsPlace = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
-    reviewText = db.Column(db.Text, nullable=False)
-    createdAt = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    reviewText = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
     def __repr__(self):
         return f"Review: {self.reviewText}"
     
-    def __init__(self, sportsPlaceId, rating, reviewText):
-        self.sportsPlaceId = sportsPlaceId
+    def __init__(self, id_sportsPlace, rating, reviewText):
+        self.id_sportsPlace = id_sportsPlace
         self.rating = rating
         self.reviewText = reviewText
-        self.sportsPlaceId = sportsPlaceId
         
     
 def format_review(review):
     return {
-        "reviewId": review.reviewId,
-        "sportsPlaceId": review.sportsPlaceId,
+        "reviewId": review.id_review,
+        "sportsPlaceId": review.id_sportsPlace,
         "rating": review.rating,
         "reviewText": review.reviewText,
-        "createdAt": review.createdAt
+        "createdAt": review.created_at
     }
 
 # Arvostelun luonti
-@app.route('/review', methods = ['POST'])
-def create_review():
-    sportsPlaceId = request.json['sportsPlaceId']
-    rating = request.json['rating']
-    reviewText = request.json['reviewText']
+@app.route("/review", methods = ["POST"])
+def add_review():
+    data = request.get_json()
 
-    review = Review(sportsPlaceId, rating, reviewText)
-    
-    db.session.add(review)
-    db.session.commit()
-    
-    return format_review(review)
+    sportsPlaceId = data.get('sportsPlaceId')
+    rating = data.get('rating')
+    reviewText = data.get('reviewText')
+
+    if sportsPlaceId is None or rating is None or reviewText is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        review = Review(id_sportsPlace=sportsPlaceId, rating=rating, reviewText=reviewText)
+        db.session.add(review)
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": f"Error adding review: {str(e)}"}), 500
+
+    return format_review(review), 201
 
 # Kaikkien arvostelujen haku
 @app.route("/review", methods = ["GET"])
@@ -108,4 +119,4 @@ def update_review(id):
         db.session.close()
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5000, debug=True)
