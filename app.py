@@ -12,6 +12,21 @@ db = SQLAlchemy(app)
 # CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5173", "http://localhost:5000", "http://localhost:3000"]}})
 CORS(app)
 
+class appUser(db.Model):
+    __tablename__ = 'appUser'
+    id_user = db.Column(db.Integer, primary_key=True)
+    usr_username = db.Column(db.String(100), nullable=False)
+    usr_passwrd = db.Column(db.String(255), nullable=False)
+    usr_email = db.Column(db.String(200), nullable=False)
+
+    def __repr__(self):
+        return f"User: {self.usr_username}"
+    
+    def __init__(self, usr_username, usr_passwrd, usr_email):
+        self.usr_username = usr_username
+        self.usr_email = usr_email
+        self.usr_passwrd = usr_passwrd
+
 class Review(db.Model):
     __tablename__ = 'review'
     id_review = db.Column(db.Integer, primary_key=True, autoincrement = True)
