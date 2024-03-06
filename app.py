@@ -18,14 +18,16 @@ class appUser(db.Model):
     usr_username = db.Column(db.String(100), nullable=False)
     usr_passwrd = db.Column(db.String(255), nullable=False)
     usr_email = db.Column(db.String(200), nullable=False)
+    is_admin = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
         return f"User: {self.usr_username}"
     
-    def __init__(self, usr_username, usr_passwrd, usr_email):
+    def __init__(self, usr_username, usr_passwrd, usr_email, is_admin):
         self.usr_username = usr_username
         self.usr_email = usr_email
         self.usr_passwrd = usr_passwrd
+        self.is_admin = is_admin
 
 class Review(db.Model):
     __tablename__ = 'review'
