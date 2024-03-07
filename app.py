@@ -118,12 +118,13 @@ def delete_review(id):
 @app.route("/review/<int:id>", methods=["PUT"])
 def update_review(id):
     try:
-        review = Review.query.filter_by(reviewId=id).first()
+        review = Review.query.filter_by(id_review=id).first()  
         if review:
-            reviewText = request.json.get("reviewText")  # Use .get() to avoid KeyError if 'reviewText' is missing
+            reviewText = request.json.get("reviewText")
+            rating = request.json.get("rating")
             if reviewText is not None:
                 review.reviewText = reviewText
-                review.createdAt = datetime.utcnow()  # Update the createdat timestamp
+                review.rating = rating
                 db.session.commit()
                 return {"review": format_review(review)}
             else:
@@ -134,6 +135,7 @@ def update_review(id):
         return f"Error updating review with id {id}: {str(e)}", 500
     finally:
         db.session.close()
+
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
