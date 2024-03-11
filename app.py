@@ -33,6 +33,7 @@ class Review(db.Model):
     __tablename__ = 'review'
     id_review = db.Column(db.Integer, primary_key=True, autoincrement = True)
     id_sportsPlace = db.Column(db.Integer, nullable=False)
+    name_sportsPlace = db.Column(db.String, nullable=True, default="noName")
     rating = db.Column(db.Integer, nullable=False)
     reviewText = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -40,8 +41,9 @@ class Review(db.Model):
     def __repr__(self):
         return f"Review: {self.reviewText}"
     
-    def __init__(self, id_sportsPlace, rating, reviewText):
+    def __init__(self, id_sportsPlace, name_sportsPlace, rating, reviewText):
         self.id_sportsPlace = id_sportsPlace
+        self.name_sportsPlace = name_sportsPlace
         self.rating = rating
         self.reviewText = reviewText
         
@@ -50,6 +52,7 @@ def format_review(review):
     return {
         "reviewId": review.id_review,
         "sportsPlaceId": review.id_sportsPlace,
+        "sportsPlaceName": review.name_sportsPlace,
         "rating": review.rating,
         "reviewText": review.reviewText,
         "createdAt": review.created_at
@@ -61,6 +64,7 @@ def add_review():
     data = request.get_json()
 
     sportsPlaceId = data.get('sportsPlaceId')
+    sportsPlaceName = data.get('sportsPlaceName')
     rating = data.get('rating')
     reviewText = data.get('reviewText')
 
@@ -68,7 +72,7 @@ def add_review():
         return jsonify({"error": "Missing required fields"}), 400
 
     try:
-        review = Review(id_sportsPlace=sportsPlaceId, rating=rating, reviewText=reviewText)
+        review = Review(id_sportsPlace=sportsPlaceId, name_sportsPlace=sportsPlaceName, rating=rating, reviewText=reviewText)
         db.session.add(review)
         db.session.commit()
     except SQLAlchemyError as e:
