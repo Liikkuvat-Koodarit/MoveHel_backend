@@ -97,6 +97,23 @@ def get_review(id):
     except exc.NoResultFound as e:
         return jsonify({"error": f"Review with id {id} not found: {str(e)}"}), 404
 
+#yhden liikuntapaikan kaikkien arvostelujen haku
+# /location/review?sportsPlaceId=idNro
+@app.route("/location/review", methods = ["GET"])
+def get_reviews_location():
+    try:
+        sports_place_id = request.args.get('sportsPlaceId')
+
+        # Check if sports place ID is provided
+        if sports_place_id is None:
+            return jsonify({"error": "Missing 'sportsPlaceId' parameter"}), 400
+        
+        reviews = Review.query.filter_by(id_sportsPlace=sports_place_id).order_by(Review.created_at.asc()).all()
+        review_list = [format_review(r) for r in reviews]
+        return {"reviews": review_list}
+    except exc.SQLAlchemyError as e:
+        return jsonify({"error": f"Error fetching reviews: {str(e)}"}), 500
+
 # Yksittäisen arvostelun poisto
 @app.route("/review/<int:id>", methods=["DELETE"])
 def delete_review(id):
