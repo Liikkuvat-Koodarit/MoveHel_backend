@@ -18,16 +18,25 @@ class appUser(db.Model):
     usr_username = db.Column(db.String(100), nullable=False)
     usr_passwrd = db.Column(db.String(255), nullable=False)
     usr_email = db.Column(db.String(200), nullable=False)
-    is_admin = db.Column(db.Boolean, nullable=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=0)
 
     def __repr__(self):
         return f"User: {self.usr_username}"
     
-    def __init__(self, usr_username, usr_passwrd, usr_email, is_admin):
+    def __init__(self, id_user, usr_username, usr_passwrd, usr_email, is_admin):
+        self.id_user = id_user
         self.usr_username = usr_username
         self.usr_email = usr_email
         self.usr_passwrd = usr_passwrd
         self.is_admin = is_admin
+
+def format_user(appUser):
+    return {
+        "userId": appUser.id_user,
+        "userName": appUser.usr_username,
+        "email": appUser.usr_email,
+        "is_admin": appUser.is_admin
+    }
 
 class Review(db.Model):
     __tablename__ = 'review'
@@ -45,9 +54,8 @@ class Review(db.Model):
         self.id_sportsPlace = id_sportsPlace
         self.name_sportsPlace = name_sportsPlace
         self.rating = rating
-        self.reviewText = reviewText
-        
-    
+        self.reviewText = reviewText     
+
 def format_review(review):
     return {
         "reviewId": review.id_review,
@@ -157,6 +165,83 @@ def update_review(id):
     finally:
         db.session.close()
 
+#käyttäjän luonti
+@app.route("/user", methods = ["POST"])
+def create_user():
+    data = request.get_json()
+
+    userId = data.get('userId')
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    is_admin = data.get('is_admin')
+
+    if username is None:
+        return jsonify({"error": "Username is required."}), 400
+    elif password is None:
+         return jsonify({"error": "Password is required."}), 400
+    elif email is None:
+        return jsonify({"error": "Email is required."}), 400
+
+    try:
+        user = appUser(id_user=userId ,usr_username=username, usr_passwrd=password, usr_email=email, is_admin=is_admin)
+        db.session.add(user)
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": f"Error creating user: {str(e)}"}), 500        
+    return format_user(user), 201
+
+#yksittäisen käyttäjän haku
+@app.route("/user/<int:id>", methods=["GET"])
+def get_user(id):
+    try:
+        user = appUser.query.filter_by(id_user=id).one()
+        formatted_user = format_user(user)
+        return {"User": formatted_user}
+    except exc.NoResultFound as e:
+        return jsonify({"Error": f"User with id {id} not found: {str(e)}"}), 404
+
+#yksittäisen käyttäjän muokkaus
+@app.route("/user/<int:id>", methods=["PUT"])
+def update_user(id):
+    try:
+        user = appUser.query.get(id)
+        if user:
+            username = request.json.get("username")
+            password = request.json.get("password")
+            email = request.json.get("email")
+            if username is not None:
+                user.usr_username = username
+                user.usr_passwrd = password
+                user.usr_email = email
+                db.session.commit()
+                return {"User": format_user(user)}
+            else:
+                return {"Error": "Missing 'username' in request body"}, 400
+        else:
+            return {"Error": "Review not found"}, 404
+    except exc.SQLAlchemyError as e:
+        db.session.rollback()
+        return f"Error updating review with id {id}: {str(e)}", 500
+    finally:
+        db.session.close()
+            
+#yksittäisen käyttäjän poisto
+@app.route("/user/<int:id>", methods=["DELETE"])
+def delete_user(id):
+    try:
+        user = appUser.query.get(id)
+        if user:
+            db.session.delete(user)
+            db.session.commit() 
+            return f"User (id_ {id}) deleted!"
+        else:
+            return f"User with id {id} not found", 404
+    except exc.SQLAlchemyError as e:
+        db.session.rollback()
+        return f"Error deleting user: {str(e)}", 500
+    finally: db.session.close()
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
