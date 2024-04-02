@@ -19,6 +19,7 @@ class appUser(db.Model):
     usr_passwrd = db.Column(db.String(255), nullable=False)
     usr_email = db.Column(db.String(200), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=0)
+    reviews = db.relationship('Review', backref='user', lazy=True)
 
     def __repr__(self):
         return f"User: {self.usr_username}"
@@ -46,6 +47,7 @@ class Review(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     reviewText = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id_user = db.Column(db.Integer, db.ForeignKey('appUser.id_user'), nullable=False)
     
     def __repr__(self):
         return f"Review: {self.reviewText}"
