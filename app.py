@@ -47,7 +47,7 @@ class Review(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     reviewText = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    id_user = db.Column(db.Integer, db.ForeignKey('appUser.id_user'), nullable=False)
+    id_user = db.Column(db.Integer, db.ForeignKey('appUser.id_user'), nullable=False, default=1) #POISTA DEFAULT    
     
     def __repr__(self):
         return f"Review: {self.reviewText}"
