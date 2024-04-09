@@ -1,16 +1,25 @@
+from datetime import datetime
 from dburi import db_uri
-from flask import Flask, request, jsonify
+from dotenv import load_dotenv
+from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS # Cross-Origin Resource Sharing
+from flask_cors import CORS
 from sqlalchemy import exc
 from sqlalchemy.exc import SQLAlchemyError
-from datetime import datetime
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
 db = SQLAlchemy(app)
-# CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5173", "http://localhost:5000", "http://localhost:3000"]}})
 CORS(app)
+# CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5173", "http://localhost:5000", "http://localhost:3000"]}})
 
 class appUser(db.Model):
     __tablename__ = 'appUser'
@@ -47,7 +56,7 @@ class Review(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     reviewText = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    id_user = db.Column(db.Integer, db.ForeignKey('appUser.id_user'), nullable=False, default=1) #POISTA DEFAULT    
+    id_user = db.Column(db.Integer, db.ForeignKey('appUser.id_user'), nullable=True)
     
     def __repr__(self):
         return f"Review: {self.reviewText}"
@@ -247,3 +256,23 @@ def delete_user(id):
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    user = appUser.query.filter_by(usr_username=username, usr_passwrd=password).first()
+
+    if user:
+        session['username'] = username
+        return jsonify({"message": "Logged in successfully"}), 200
+    else:
+        return jsonify({"error": "Invalid username or password"}), 401
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    session.pop('username', None)
+    return jsonify({"message": "Logged out successfully"}), 200
