@@ -254,9 +254,6 @@ def delete_user(id):
         return f"Error deleting user: {str(e)}", 500
     finally: db.session.close()
 
-if __name__ == '__main__':
-    app.run(port=5000, debug=True)
-
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -276,3 +273,6 @@ def logout():
     # remove the username from the session if it's there
     session.pop('username', None)
     return jsonify({"message": "Logged out successfully"}), 200
+
+if __name__ == '__main__':
+    app.run(port=5000, debug=True)
