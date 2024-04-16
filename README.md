@@ -13,6 +13,7 @@
 2. In terminal: start the app with **flask run** 
 
 ## Python commands (in VSCode terminal)
+These are meant for creating necessary tables in the DB. Input these **one by one**:
 > python
 > from app import app, db
 > app.app_context().push()
