@@ -264,7 +264,7 @@ def login():
 
     if user:
         session['username'] = username
-        return jsonify({"message": "Logged in successfully"}), 200
+        return format_user(user), 201
     else:
         return jsonify({"error": "Invalid username or password"}), 401
 
