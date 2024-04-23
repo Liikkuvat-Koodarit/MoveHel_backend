@@ -9,19 +9,26 @@ from sqlalchemy.exc import SQLAlchemyError
 import os
 
 load_dotenv()
+'''Database URI from .env file'''
 
 app = Flask(__name__)
+'''Flask app settings'''
 
 app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+'''Database settings'''
 
 db = SQLAlchemy(app)
+'''Database connection'''
 CORS(app)
+'''CORS settings'''
+
 # CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5173", "http://localhost:5000", "http://localhost:3000"]}})
 
 class appUser(db.Model):
+    '''User model'''
     __tablename__ = 'appUser'
     id_user = db.Column(db.Integer, primary_key=True)
     usr_username = db.Column(db.String(100), nullable=False)
@@ -41,6 +48,7 @@ class appUser(db.Model):
         self.is_admin = is_admin
 
 def format_user(appUser):
+    '''Format user object to dictionary'''
     return {
         "userId": appUser.id_user,
         "userName": appUser.usr_username,
@@ -49,6 +57,7 @@ def format_user(appUser):
     }
 
 class Review(db.Model):
+    '''Review model'''
     __tablename__ = 'review'
     id_review = db.Column(db.Integer, primary_key=True, autoincrement = True)
     id_sportsPlace = db.Column(db.Integer, nullable=False)
@@ -68,6 +77,7 @@ class Review(db.Model):
         self.reviewText = reviewText     
 
 def format_review(review):
+    '''Format review object to dictionary'''
     return {
         "reviewId": review.id_review,
         "sportsPlaceId": review.id_sportsPlace,
@@ -77,9 +87,9 @@ def format_review(review):
         "createdAt": review.created_at
     }
 
-# Arvostelun luonti
 @app.route("/review", methods = ["POST"])
 def add_review():
+    '''Add a new review to the database'''
     data = request.get_json()
 
     sportsPlaceId = data.get('sportsPlaceId')
@@ -100,9 +110,9 @@ def add_review():
 
     return format_review(review), 201
 
-# Kaikkien arvostelujen haku
 @app.route("/review", methods = ["GET"])
 def get_reviews():
+    '''Get all reviews from the database'''
     try:
         reviews = Review.query.order_by(Review.created_at.asc()).all()
         review_list = [format_review(r) for r in reviews]
@@ -110,9 +120,9 @@ def get_reviews():
     except exc.SQLAlchemyError as e:
         return jsonify({"error": f"Error fetching reviews: {str(e)}"}), 500
 
-# Yksittäisen arvostelun haku
 @app.route("/review/<int:id>", methods=["GET"])
 def get_review(id):
+    '''Get a single review by ID'''
     try:
         review = Review.query.filter_by(id_review=id).one()
         formatted_review = format_review(review)
@@ -120,10 +130,10 @@ def get_review(id):
     except exc.NoResultFound as e:
         return jsonify({"error": f"Review with id {id} not found: {str(e)}"}), 404
 
-#yhden liikuntapaikan kaikkien arvostelujen haku
 # /location/review?sportsPlaceId=idNro
 @app.route("/location/review", methods = ["GET"])
 def get_reviews_location():
+    '''Get all reviews for a specific sports place'''
     try:
         sports_place_id = request.args.get('sportsPlaceId')
 
@@ -137,9 +147,9 @@ def get_reviews_location():
     except exc.SQLAlchemyError as e:
         return jsonify({"error": f"Error fetching reviews: {str(e)}"}), 500
 
-# Yksittäisen arvostelun poisto
 @app.route("/review/<int:id>", methods=["DELETE"])
 def delete_review(id):
+    '''Delete a review by ID'''
     try:
         review = Review.query.get(id)
         if review:
@@ -154,9 +164,9 @@ def delete_review(id):
     finally:
         db.session.close()
 
-# Yksittäisen arvostelun muokkaus
 @app.route("/review/<int:id>", methods=["PUT"])
 def update_review(id):
+    '''Update a review by ID'''
     try:
         review = Review.query.filter_by(id_review=id).first()  
         if review:
@@ -176,9 +186,9 @@ def update_review(id):
     finally:
         db.session.close()
 
-#käyttäjän luonti
 @app.route("/user", methods = ["POST"])
 def create_user():
+    '''Create a new user in the database'''
     data = request.get_json()
 
     userId = data.get('userId')
@@ -203,9 +213,9 @@ def create_user():
         return jsonify({"error": f"Error creating user: {str(e)}"}), 500        
     return format_user(user), 201
 
-#yksittäisen käyttäjän haku
 @app.route("/user/<int:id>", methods=["GET"])
 def get_user(id):
+    '''Get a single user by ID'''
     try:
         user = appUser.query.filter_by(id_user=id).one()
         formatted_user = format_user(user)
@@ -213,9 +223,9 @@ def get_user(id):
     except exc.NoResultFound as e:
         return jsonify({"Error": f"User with id {id} not found: {str(e)}"}), 404
 
-#yksittäisen käyttäjän muokkaus
 @app.route("/user/<int:id>", methods=["PUT"])
 def update_user(id):
+    '''Update a user by ID'''
     try:
         user = appUser.query.get(id)
         if user:
@@ -238,9 +248,9 @@ def update_user(id):
     finally:
         db.session.close()
             
-#yksittäisen käyttäjän poisto
 @app.route("/user/<int:id>", methods=["DELETE"])
 def delete_user(id):
+    '''Delete a user by ID'''
     try:
         user = appUser.query.get(id)
         if user:
@@ -256,6 +266,7 @@ def delete_user(id):
 
 @app.route('/login', methods=['POST'])
 def login():
+    '''Login user and create session'''
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -270,7 +281,8 @@ def login():
 
 @app.route('/logout')
 def logout():
-    # remove the username from the session if it's there
+    '''Logout user and remove session'''
+    # Remove the username from the session if it's there
     session.pop('username', None)
     return jsonify({"message": "Logged out successfully"}), 200
 
