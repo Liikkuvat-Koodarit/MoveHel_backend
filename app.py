@@ -70,11 +70,12 @@ class Review(db.Model):
     def __repr__(self):
         return f"Review: {self.reviewText}"
     
-    def __init__(self, id_sportsPlace, name_sportsPlace, rating, reviewText):
+    def __init__(self, id_sportsPlace, name_sportsPlace, rating, reviewText, id_user):
         self.id_sportsPlace = id_sportsPlace
         self.name_sportsPlace = name_sportsPlace
         self.rating = rating
-        self.reviewText = reviewText     
+        self.reviewText = reviewText
+        self.id_user = id_user     
 
 def format_review(review):
     '''Format review object to dictionary'''
@@ -84,10 +85,12 @@ def format_review(review):
         "sportsPlaceName": review.name_sportsPlace,
         "rating": review.rating,
         "reviewText": review.reviewText,
-        "createdAt": review.created_at
+        "userId": review.id_user,
+        "userName": review.user.usr_username,  # Include the username
+        "createdAt": review.created_at,
     }
 
-@app.route("/review", methods = ["POST"])
+@app.route("/review", methods=["POST"])
 def add_review():
     '''Add a new review to the database'''
     data = request.get_json()
@@ -96,12 +99,15 @@ def add_review():
     sportsPlaceName = data.get('sportsPlaceName')
     rating = data.get('rating')
     reviewText = data.get('reviewText')
+    userId = data.get('userId')
 
-    if sportsPlaceId is None or rating is None or reviewText is None:
+    print("Received userId:", userId) 
+
+    if sportsPlaceId is None or rating is None or reviewText is None or userId is None:
         return jsonify({"error": "Missing required fields"}), 400
 
     try:
-        review = Review(id_sportsPlace=sportsPlaceId, name_sportsPlace=sportsPlaceName, rating=rating, reviewText=reviewText)
+        review = Review(id_sportsPlace=sportsPlaceId, name_sportsPlace=sportsPlaceName, rating=rating, reviewText=reviewText, id_user=userId)
         db.session.add(review)
         db.session.commit()
     except SQLAlchemyError as e:
@@ -109,7 +115,6 @@ def add_review():
         return jsonify({"error": f"Error adding review: {str(e)}"}), 500
 
     return format_review(review), 201
-
 @app.route("/review", methods = ["GET"])
 def get_reviews():
     '''Get all reviews from the database'''
