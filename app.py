@@ -268,6 +268,20 @@ def delete_user(id):
         db.session.rollback()
         return f"Error deleting user: {str(e)}", 500
     finally: db.session.close()
+    
+@app.route("/user/<int:id>/reviews", methods=["GET"])
+def get_user_reviews(id):
+    '''Get all reviews made by a single user'''
+    try:
+        user = appUser.query.get(id)
+        if user:
+            reviews = Review.query.filter_by(id_user=id).order_by(Review.created_at.asc()).all()
+            review_list = [format_review(r) for r in reviews]
+            return {"reviews": review_list}
+        else:
+            return jsonify({"error": f"User with id {id} not found"}), 404
+    except exc.SQLAlchemyError as e:
+        return jsonify({"error": f"Error fetching reviews: {str(e)}"}), 500
 
 @app.route('/login', methods=['POST'])
 def login():
