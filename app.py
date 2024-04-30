@@ -115,7 +115,7 @@ def add_review():
         return jsonify({"error": f"Error adding review: {str(e)}"}), 500
 
     return format_review(review), 201
-@app.route("/review", methods = ["GET"])
+@app.route("/reviews", methods = ["GET"])
 def get_reviews():
     '''Get all reviews from the database'''
     try:
