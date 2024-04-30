@@ -1,5 +1,5 @@
 from datetime import datetime
-from dburi import db_uri
+# from dburi import db_uri
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
