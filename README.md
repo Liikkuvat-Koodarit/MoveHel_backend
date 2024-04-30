@@ -18,8 +18,10 @@
 > db.create_all()
 > exit()
 
-db_uri = "postgresql://postgres:YOUR_PASSWORD@localhost/**movehel**")
-- Database tables can be found like so: **Databases -> movehel -> Schemas -> Tables**
+Local database URI for development:
+- db_uri = "postgresql://postgres:YOUR_PASSWORD@localhost/**movehel**")
+
+Database tables can be found like so: **Databases -> movehel -> Schemas -> Tables**
 - Information can be refreshed by right clicking on a field and clicking **Refresh**
 
 ## Running the app

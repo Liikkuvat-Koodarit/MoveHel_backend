@@ -1,5 +1,5 @@
 from datetime import datetime
-# from dburi import db_uri
+from dburi import db_uri
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
@@ -20,7 +20,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 # app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
-# postgres://movehel_j1r7_user:jUXd0rGfbpk1W3WN5y7FePFUosQmuLqG@dpg-coo9lvmv3ddc738jfhug-a.oregon-postgres.render.com/movehel_j1r7
+# postgres://movehel_2acv_user:IPapOUHTIjNFzwLARqCNyp3DVsi3vTei@dpg-cooagdv79t8c73b9kf9g-a.frankfurt-postgres.render.com/movehel_2acv7
 
 # postgres://movehel_j1r7_user:jUXd0rGfbpk1W3WN5y7FePFUosQmuLqG@dpg-coo9lvmv3ddc738jfhug-a/movehel_j1r7
 
