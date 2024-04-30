@@ -16,6 +16,7 @@
 > from app import app, db
 > app.app_context().push()
 > db.create_all()
+> exit()
 
 db_uri = "postgresql://postgres:YOUR_PASSWORD@localhost/**movehel**")
 - Database tables can be found like so: **Databases -> movehel -> Schemas -> Tables**
