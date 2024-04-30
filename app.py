@@ -1,11 +1,11 @@
 from datetime import datetime
-# from dburi import db_uri
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from sqlalchemy import exc
 from sqlalchemy.exc import SQLAlchemyError
+from waitress import serve
 import os
 
 load_dotenv()
@@ -17,17 +17,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-# app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-
-# postgres://movehel_2acv_user:IPapOUHTIjNFzwLARqCNyp3DVsi3vTei@dpg-cooagdv79t8c73b9kf9g-a.frankfurt-postgres.render.com/movehel_2acv7
-
-# postgres://movehel_j1r7_user:jUXd0rGfbpk1W3WN5y7FePFUosQmuLqG@dpg-coo9lvmv3ddc738jfhug-a/movehel_j1r7
-
 '''Database settings'''
 
 db = SQLAlchemy(app)
 '''Database connection'''
+
 CORS(app)
 '''CORS settings'''
 
@@ -95,6 +90,10 @@ def format_review(review):
         "userName": review.user.usr_username,  # Include the username
         "createdAt": review.created_at,
     }
+
+@app.route("/")
+def index():
+    return "WAITRESS TEST"
 
 @app.route("/review", methods=["POST"])
 def add_review():
@@ -311,5 +310,10 @@ def logout():
     session.pop('username', None)
     return jsonify({"message": "Logged out successfully"}), 200
 
+mode = "prod"
+
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    if mode == "dev":
+        app.run(port=5000, debug=True)
+    else:
+        serve(app, host='0.0.0.0', port=50100)
