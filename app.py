@@ -91,9 +91,7 @@ def format_review(review):
         "createdAt": review.created_at,
     }
 
-@app.route("/")
-def index():
-    return "WAITRESS TEST"
+
 
 @app.route("/review", methods=["POST"])
 def add_review():
@@ -309,6 +307,14 @@ def logout():
     # Remove the username from the session if it's there
     session.pop('username', None)
     return jsonify({"message": "Logged out successfully"}), 200
+
+def create_app():
+    app = Flask(__name__)
+
+    @app.route('/')
+    def index():
+        return "WAITRESS SERVER IS RUNNING!"
+    return app
 
 mode = "prod"
 
