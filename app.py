@@ -17,7 +17,13 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+# app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+
+# postgres://movehel_j1r7_user:jUXd0rGfbpk1W3WN5y7FePFUosQmuLqG@dpg-coo9lvmv3ddc738jfhug-a.oregon-postgres.render.com/movehel_j1r7
+
+# postgres://movehel_j1r7_user:jUXd0rGfbpk1W3WN5y7FePFUosQmuLqG@dpg-coo9lvmv3ddc738jfhug-a/movehel_j1r7
+
 '''Database settings'''
 
 db = SQLAlchemy(app)
