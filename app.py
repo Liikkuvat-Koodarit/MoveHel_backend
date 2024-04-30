@@ -8,6 +8,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from waitress import serve
 import os
 
+devmode = False
+'''True = Development mode, False = Production mode'''
+
 load_dotenv()
 '''Database URI from .env file'''
 
@@ -25,8 +28,6 @@ db = SQLAlchemy(app)
 
 CORS(app)
 '''CORS settings'''
-
-# CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5173", "http://localhost:5000", "http://localhost:3000"]}})
 
 class appUser(db.Model):
     '''User model'''
@@ -316,10 +317,8 @@ def create_app():
         return "WAITRESS SERVER IS RUNNING!"
     return app
 
-mode = "prod"
-
 if __name__ == '__main__':
-    if mode == "dev":
+    if devmode:
         app.run(port=5000, debug=True)
     else:
         serve(app, host='0.0.0.0', port=50100)
