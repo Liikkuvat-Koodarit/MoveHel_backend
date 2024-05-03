@@ -26,8 +26,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
 '''Database connection'''
 
-#CORS(app, origins=['https://movehel-frontend.onrender.com/'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE"], allow_headers=["Content-Type", "Authorization"])
-#'''CORS settings'''
+CORS(app, origins=['https://movehel-frontend.onrender.com/'], 
+     supports_credentials=True, 
+     methods=["GET", "POST", "PUT", "DELETE"], 
+     access_control_allow_origin="*",
+     allow_headers=["Content-Type", "Authorization"])
+'''CORS settings'''
 
 class appUser(db.Model):
     '''User model'''
