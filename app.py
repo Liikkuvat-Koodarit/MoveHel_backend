@@ -26,7 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
 '''Database connection'''
 
-CORS(app)
+CORS(app, origins=['https://movehel-frontend.onrender.com/'])
 '''CORS settings'''
 
 class appUser(db.Model):
