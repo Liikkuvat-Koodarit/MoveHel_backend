@@ -26,7 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
 '''Database connection'''
 
-CORS(app, origins=["https://movehel-frontend.onrender.com"])
+CORS(app, resources={r"/*": {"origins": "https://movehel-frontend.onrender.com"}})
 '''Cross-Origin Resource Sharing (CORS) settings'''
 
 class appUser(db.Model):
@@ -91,23 +91,6 @@ def format_review(review):
         "userName": review.user.usr_username,  # Include the username
         "createdAt": review.created_at,
     }
-
-@app.before_request
-def before_request():
-    headers = { 'Access-Control-Allow-Origin': 'https://movehel-frontend.onrender.com', 
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization' }
-    
-    if request.method.lower() == 'options':
-        return jsonify(headers), 200
-    
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'https://movehel-frontend.onrender.com')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-    return response
-    return response
 
 @app.route("/review", methods=["POST"])
 def add_review():
