@@ -17,9 +17,6 @@ load_dotenv()
 app = Flask(__name__)
 '''Flask app settings'''
 
-CORS(app, resources={r"/*": {"origins": ["https://movehel-frontend.onrender.com/"]}})
-'''Cross-Origin Resource Sharing (CORS) settings'''
-
 app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
@@ -28,6 +25,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 db = SQLAlchemy(app)
 '''Database connection'''
+
+#CORS(app, resources={r"/*": {"origins": ["https://movehel-frontend.onrender.com/"]}})
+CORS(app)
+'''Cross-Origin Resource Sharing (CORS) settings'''
 
 class appUser(db.Model):
     '''User model'''
@@ -92,7 +93,14 @@ def format_review(review):
         "createdAt": review.created_at,
     }
 
-
+@app.before_request
+def before_request():
+    headers = { 'Access-Control-Allow-Origin': 'https://movehel-frontend.onrender.com/', 
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization' }
+    
+    if request.method.lower() == 'options':
+        return jsonify(headers), 200
 
 @app.route("/review", methods=["POST"])
 def add_review():
