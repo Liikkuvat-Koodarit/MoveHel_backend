@@ -196,7 +196,7 @@ def update_review(id):
         db.session.close()
 
 @app.route("/user", methods = ["POST"])
-@cross_origin(origins=['https://movehel-frontend.onrender.com/'])
+@cross_origin(origin='https://www.examplesite.com/', headers=['Content- Type','Authorization'])
 def create_user():
     '''Create a new user in the database'''
     data = request.get_json()
