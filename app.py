@@ -2,7 +2,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from sqlalchemy import exc
 from sqlalchemy.exc import SQLAlchemyError
 from waitress import serve
@@ -26,7 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
 '''Database connection'''
 
-CORS(app, origins=['https://movehel-frontend.onrender.com/'])
+CORS(app, origins=['https://movehel-frontend.onrender.com/'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE"], allow_headers=["Content-Type", "Authorization"])
 '''CORS settings'''
 
 class appUser(db.Model):
