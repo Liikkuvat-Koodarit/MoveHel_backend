@@ -18,7 +18,7 @@ app = Flask(__name__)
 '''Flask app settings'''
 
 cors_config = {
-    "origins": ["https://movehel-backend.onrender.com"],
+    "origins": ["*"],
     "methods": ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
     "allow_headers": ["Authorization", "Content-Type"]
 }
