@@ -27,6 +27,7 @@ db = SQLAlchemy(app)
 '''Database connection'''
 
 CORS(app)
+'''Cross-Origin Resource Sharing (CORS) settings'''
 
 class appUser(db.Model):
     '''User model'''
@@ -196,7 +197,7 @@ def update_review(id):
         db.session.close()
 
 @app.route("/user", methods = ["POST"])
-@cross_origin(origin='https://www.examplesite.com/', headers=['Content- Type','Authorization'])
+@cross_origin(origin='https://movehel-frontend.onrender.com/', headers=['Content- Type','Authorization'])
 def create_user():
     '''Create a new user in the database'''
     data = request.get_json()
