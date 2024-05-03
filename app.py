@@ -2,7 +2,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from sqlalchemy import exc
 from sqlalchemy.exc import SQLAlchemyError
 from waitress import serve
@@ -26,8 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
 '''Database connection'''
 
-#CORS(app, resources={r"/*": {"origins": ["https://movehel-frontend.onrender.com/"]}})
-CORS(app)
+CORS(app, origins=["https://movehel-frontend.onrender.com"])
 '''Cross-Origin Resource Sharing (CORS) settings'''
 
 class appUser(db.Model):
@@ -95,7 +94,7 @@ def format_review(review):
 
 @app.before_request
 def before_request():
-    headers = { 'Access-Control-Allow-Origin': 'https://movehel-frontend.onrender.com/', 
+    headers = { 'Access-Control-Allow-Origin': 'https://movehel-frontend.onrender.com', 
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization' }
     
@@ -104,9 +103,10 @@ def before_request():
     
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'https://movehel-frontend.onrender.com/')
+    response.headers.add('Access-Control-Allow-Origin', 'https://movehel-frontend.onrender.com')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    return response
     return response
 
 @app.route("/review", methods=["POST"])
