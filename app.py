@@ -17,6 +17,15 @@ load_dotenv()
 app = Flask(__name__)
 '''Flask app settings'''
 
+app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+'''Database settings'''
+
+db = SQLAlchemy(app)
+'''Database connection'''
+
 cors_config = {
     "origins": ["*"],
     "methods": ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
@@ -26,15 +35,6 @@ cors_config = {
 
 CORS(app, resources={r'/*': cors_config})
 '''CORS settings'''
-
-app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-'''Database settings'''
-
-db = SQLAlchemy(app)
-'''Database connection'''
 
 class appUser(db.Model):
     '''User model'''
