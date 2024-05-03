@@ -101,6 +101,13 @@ def before_request():
     
     if request.method.lower() == 'options':
         return jsonify(headers), 200
+    
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', 'https://movehel-frontend.onrender.com/')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    return response
 
 @app.route("/review", methods=["POST"])
 def add_review():
