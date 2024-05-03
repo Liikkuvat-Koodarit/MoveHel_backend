@@ -16,8 +16,16 @@ load_dotenv()
 
 app = Flask(__name__)
 '''Flask app settings'''
-cors = CORS(app, resources={r'/*': {'origins': 'https://movehel-frontend.onrender.com'}})
-'''Cross-Origin Resource Sharing (CORS) settings'''
+
+cors_config = {
+    "origins": ["https://movehel-backend.onrender.com"],
+    "methods": ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
+    "allow_headers": ["Authorization", "Content-Type"]
+}
+'''CORS configuration'''
+
+CORS(app, resources={r'/*': cors_config})
+'''CORS settings'''
 
 app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
