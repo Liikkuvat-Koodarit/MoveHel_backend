@@ -2,7 +2,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from sqlalchemy import exc
 from sqlalchemy.exc import SQLAlchemyError
 from waitress import serve
@@ -16,6 +16,8 @@ load_dotenv()
 
 app = Flask(__name__)
 '''Flask app settings'''
+cors = CORS(app, resources={r'/*': {'origins': 'https://movehel-frontend.onrender.com'}})
+'''Cross-Origin Resource Sharing (CORS) settings'''
 
 app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -25,9 +27,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 db = SQLAlchemy(app)
 '''Database connection'''
-
-CORS(app, resources={r"/*": {"origins": "https://movehel-frontend.onrender.com"}})
-'''Cross-Origin Resource Sharing (CORS) settings'''
 
 class appUser(db.Model):
     '''User model'''
@@ -93,7 +92,6 @@ def format_review(review):
     }
 
 @app.route("/review", methods=["POST"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/review', headers=['Content- Type','Authorization'])
 def add_review():
     '''Add a new review to the database'''
     data = request.get_json()
@@ -120,7 +118,6 @@ def add_review():
     return format_review(review), 201
 
 @app.route("/reviews", methods = ["GET"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/reviews', headers=['Content- Type','Authorization'])
 def get_reviews():
     '''Get all reviews from the database'''
     try:
@@ -131,7 +128,6 @@ def get_reviews():
         return jsonify({"error": f"Error fetching reviews: {str(e)}"}), 500
 
 @app.route("/review/<int:id>", methods=["GET"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/review/<int:id>', headers=['Content- Type','Authorization'])
 def get_review(id):
     '''Get a single review by ID'''
     try:
@@ -143,7 +139,6 @@ def get_review(id):
 
 # /location/review?sportsPlaceId=idNro
 @app.route("/location/review", methods = ["GET"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/location/reviews', headers=['Content- Type','Authorization'])
 def get_reviews_location():
     '''Get all reviews for a specific sports place'''
     try:
@@ -160,7 +155,6 @@ def get_reviews_location():
         return jsonify({"error": f"Error fetching reviews: {str(e)}"}), 500
 
 @app.route("/review/<int:id>", methods=["DELETE"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/review/<int:id>', headers=['Content- Type','Authorization'])
 def delete_review(id):
     '''Delete a review by ID'''
     try:
@@ -178,7 +172,6 @@ def delete_review(id):
         db.session.close()
 
 @app.route("/review/<int:id>", methods=["PUT"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/review/<int:id>', headers=['Content- Type','Authorization'])
 def update_review(id):
     '''Update a review by ID'''
     try:
@@ -201,7 +194,7 @@ def update_review(id):
         db.session.close()
 
 @app.route("/user", methods = ["POST"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/user', headers=['Content- Type','Authorization'])
+#@cross_origin(origin='https://movehel-frontend.onrender.com/', headers=['Content- Type','Authorization'])
 def create_user():
     '''Create a new user in the database'''
     data = request.get_json()
@@ -229,7 +222,6 @@ def create_user():
     return format_user(user), 201
 
 @app.route("/user/<int:id>", methods=["GET"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/user/<int:id>', headers=['Content- Type','Authorization'])
 def get_user(id):
     '''Get a single user by ID'''
     try:
@@ -240,7 +232,6 @@ def get_user(id):
         return jsonify({"Error": f"User with id {id} not found: {str(e)}"}), 404
 
 @app.route("/user/<int:id>", methods=["PUT"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/user/<int:id>', headers=['Content- Type','Authorization'])
 def update_user(id):
     '''Update a user by ID'''
     try:
@@ -266,7 +257,6 @@ def update_user(id):
         db.session.close()
             
 @app.route("/user/<int:id>", methods=["DELETE"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/user/<int:id>', headers=['Content- Type','Authorization'])
 def delete_user(id):
     '''Delete a user by ID'''
     try:
@@ -283,7 +273,6 @@ def delete_user(id):
     finally: db.session.close()
     
 @app.route("/user/<int:id>/reviews", methods=["GET"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/user/<int:id>/reviews', headers=['Content- Type','Authorization'])
 def get_user_reviews(id):
     '''Get all reviews made by a single user'''
     try:
