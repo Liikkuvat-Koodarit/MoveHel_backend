@@ -26,8 +26,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
 '''Database connection'''
 
-CORS(app, origins=['https://movehel-frontend.onrender.com/'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE"], allow_headers=["Content-Type", "Authorization"])
-'''CORS settings'''
+#CORS(app, origins=['https://movehel-frontend.onrender.com/'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE"], allow_headers=["Content-Type", "Authorization"])
+#'''CORS settings'''
 
 class appUser(db.Model):
     '''User model'''
@@ -119,6 +119,7 @@ def add_review():
         return jsonify({"error": f"Error adding review: {str(e)}"}), 500
 
     return format_review(review), 201
+
 @app.route("/reviews", methods = ["GET"])
 def get_reviews():
     '''Get all reviews from the database'''
@@ -196,6 +197,7 @@ def update_review(id):
         db.session.close()
 
 @app.route("/user", methods = ["POST"])
+@cross_origin(origins=['https://movehel-frontend.onrender.com/'])
 def create_user():
     '''Create a new user in the database'''
     data = request.get_json()
