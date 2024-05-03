@@ -17,6 +17,9 @@ load_dotenv()
 app = Flask(__name__)
 '''Flask app settings'''
 
+CORS(app, resources={r"/*": {"origins": ["https://movehel-frontend.onrender.com/"]}})
+'''Cross-Origin Resource Sharing (CORS) settings'''
+
 app.config['SECRET_KEY'] = os.environ["SECRET_KEY"]
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
@@ -25,9 +28,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 db = SQLAlchemy(app)
 '''Database connection'''
-
-CORS(app)
-'''Cross-Origin Resource Sharing (CORS) settings'''
 
 class appUser(db.Model):
     '''User model'''
@@ -197,7 +197,7 @@ def update_review(id):
         db.session.close()
 
 @app.route("/user", methods = ["POST"])
-@cross_origin(origin='https://movehel-frontend.onrender.com/', headers=['Content- Type','Authorization'])
+#@cross_origin(origin='https://movehel-frontend.onrender.com/', headers=['Content- Type','Authorization'])
 def create_user():
     '''Create a new user in the database'''
     data = request.get_json()
