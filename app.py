@@ -328,4 +328,4 @@ if __name__ == '__main__':
     if devmode:
         app.run(port=5000, debug=True)
     else:
-        serve(app, host='0.0.0.0', port=50100)
+        serve(app, host='0.0.0.0', port=8080)
